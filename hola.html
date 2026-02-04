@@ -1,19 +1,20 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <script src="https://aframe.io/releases/1.0.0/aframe.min.js"></script>
-</head>
-<body>
+  </head>
+  <body>
     <a-scene>
-        <a-box
-            position="0 5 -5"
-            depth="2"
-            height="2"
-            width="2"
-            animation="
+        <!-- COLOR -->
+      <a-box
+        position="-5 1 -5"
+        depth="2"
+        height="2"
+        width="2"
+        animation="
                 property: color;
                 from: rgb(99, 224, 224);
                 to: rgb(207, 99, 224);
@@ -22,11 +23,14 @@
                 loop: true;
                 startEvents: click
             "
-            color="tomato">
-        </a-box>
-        <a-box 
-            color="blue" position="0 1 -2"
-            animation="
+        color="tomato"
+      >
+      <!-- POSICION -->
+      </a-box>
+      <a-box
+        color="blue"
+        position="0 1 -2"
+        animation="
                 property: position;
                 from: 0 1 -2;
                 to: 0 1 -5;
@@ -34,19 +38,31 @@
                 dur: 1000;
                 loop: true;
                 startEvents: click;"
-            ></a-box>
-        <a-plane
-                width="20"
-                height="20"
-                color="teal"
-                rotation="-90 0 0"
-            ></a-plane>
-            
-            <a-camera>
-                <a-cursor></a-cursor>
-            </a-camera>
-            
-            <a-sky color="#EEEEEE"></a-sky>
+      ></a-box>
+      <a-plane width="20" height="20" color="teal" rotation="-90 0 0"></a-plane>
+      <!-- ROTACION -->
+      <a-torus
+                color="orange"
+                position="3 2 -5"
+                width="1"
+                height="2"
+                depth="1.5"
+                animation="
+                    property: rotation;
+                    from: 0 0 0;
+                    to: 0 360 360;
+                    startEvents: click;
+                    dur: 2000;
+                    loop: true;"
+                >
+                </a-animation>
+            </a-torus>
+
+      <a-camera>
+        <a-cursor></a-cursor>
+      </a-camera>
+
+      <a-sky color="#EEEEEE"></a-sky>
     </a-scene>
-</body>
+  </body>
 </html>
