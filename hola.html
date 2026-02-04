@@ -8,6 +8,22 @@
 </head>
 <body>
     <a-scene>
+        <a-box
+            position="0 5 -5"
+            depth="2"
+            height="2"
+            width="2"
+            animation="
+                property: color;
+                from: rgb(99, 224, 224);
+                to: rgb(207, 99, 224);
+                dur: 2000;
+                easing: linear;
+                loop: true;
+                startEvents: click
+            "
+            color="tomato">
+        </a-box>
         <a-box 
             color="blue" position="0 1 -2"
             animation="
