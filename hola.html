@@ -4,8 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script src="https://aframe.io/releases/1.0.0/aframe.min.js"></script>
 </head>
 <body>
-    <h1>Hola esto es una prueba, andi</h1>
+    <a-scene>
+        <a-box 
+            color="blue" position="0 1 -2"
+            animation="
+                property: position;
+                from: 0 1 -2;
+                to: 0 1 -5;
+                dir: alternate;
+                dur: 1000;
+                loop: true;
+                startEvents: click;"
+            ></a-box>
+        <a-plane
+                width="20"
+                height="20"
+                color="teal"
+                rotation="-90 0 0"
+            ></a-plane>
+            
+            <a-camera>
+                <a-cursor></a-cursor>
+            </a-camera>
+            
+            <a-sky color="#EEEEEE"></a-sky>
+    </a-scene>
 </body>
 </html>
