@@ -50,3 +50,8 @@ Aquí definimos cómo programar las reglas básicas:
         * Al detectar una intersección positiva, el sistema disparará la rutina de *Victoria*.
 
 ---
+
+
+### Boceto 
+
+![boceto](tronboceto.jpeg)
