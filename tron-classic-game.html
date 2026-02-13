@@ -1,171 +1,210 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>TRON - Dark Arcade Style</title>
-  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>TRON - Dark Arcade Style</title>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
 
-  <script>
-    const ARENA_LIMIT = 39.5;
-    const TRAIL_STEP = 0.2; 
-    const trails = [];
+    <script>
+      const ARENA_LIMIT = 39.5;
+      const TRAIL_STEP = 0.5; 
+      const trails = [];
 
-    AFRAME.registerComponent('player-movement', {
-      schema: {
-        playerNum: { type: 'number' },
-        color: { type: 'color' },
-        startX: { type: 'number' },
-        startZ: { type: 'number' }
-      },
+      AFRAME.registerComponent('player-movement', {
+        schema: {
+          playerNum: { type: 'number' },
+          color: { type: 'color' },
+          startX: { type: 'number' },
+          startZ: { type: 'number' }
+        },
 
-      init() {
-        this.dir = new THREE.Vector3(0, 0, -1);
-        this.heading = 'up';
-        this.speed = 18;
-        this.boosting = false;
-        this.canBoost = true;
-        this.lastTrailPos = new THREE.Vector3();
-        this.dead = false;
-
-        this.el.object3D.position.set(this.data.startX, 0, this.data.startZ);
-        this.lastTrailPos.copy(this.el.object3D.position);
-
-        window.addEventListener('keydown', e => this.handleInput(e));
-        
-        // Sensor de choque
-        this.el.addEventListener('raycaster-intersection', (evt) => {
-             if (!this.dead && evt.detail.els.length > 0) {
-             }
-        });
-      },
-
-      handleInput(e) {
-        if (this.dead) return;
-        const p1 = this.data.playerNum === 1;
-        const controls = p1
-          ? { u:'w', d:'s', l:'a', r:'d', boost: 'Tab' }
-          : { u:'ArrowUp', d:'ArrowDown', l:'ArrowLeft', r:'ArrowRight', boost: 'Enter' };
-
-        if (e.key === controls.u && this.heading !== 'down') this.setDir(0,0,-1,'up',0);
-        else if (e.key === controls.d && this.heading !== 'up') this.setDir(0,0,1,'down',Math.PI);
-        else if (e.key === controls.l && this.heading !== 'right') this.setDir(-1,0,0,'left',Math.PI/2);
-        else if (e.key === controls.r && this.heading !== 'left') this.setDir(1,0,0,'right',-Math.PI/2);
-
-        if (e.key === controls.boost && this.canBoost) this.activateBoost();
-      },
-
-      activateBoost() {
-        this.boosting = true;
-        this.canBoost = false;
-        const light = this.el.querySelector('a-light');
-        if(light) light.setAttribute('intensity', 4); // Flash de luz
-        
-        setTimeout(() => {
+        init() {
+          this.dir = new THREE.Vector3(0, 0, -1);
+          this.heading = 'up';
+          this.speed = 18;
           this.boosting = false;
-          if(light) light.setAttribute('intensity', 2);
-        }, 500); 
-        
-        setTimeout(() => { this.canBoost = true; }, 3000);
-      },
+          this.canBoost = true;
+          this.lastTrailPos = new THREE.Vector3();
+          this.dead = false;
 
-      setDir(x,y,z,h,rot) {
-        this.dir.set(x,y,z);
-        this.heading = h;
-        this.el.object3D.rotation.y = rot;
-      },
+          this.el.object3D.position.set(this.data.startX, 0, this.data.startZ);
+          this.lastTrailPos.copy(this.el.object3D.position);
 
-      tick(time, delta) {
-        if (this.dead) return;
+          this.boundHandleInput = this.handleInput.bind(this);
+          window.addEventListener('keydown', this.boundHandleInput);
+        },
 
-        const speed = this.boosting ? this.speed * 2.5 : this.speed;
-        const step = speed * delta / 1000;
-        const pos = this.el.object3D.position;
-        pos.addScaledVector(this.dir, step);
+        remove() {
+          window.removeEventListener('keydown', this.boundHandleInput);
+        },
 
-        if (Math.abs(pos.x) > ARENA_LIMIT || Math.abs(pos.z) > ARENA_LIMIT) {
-          this.die();
-          return;
-        }
+        handleInput(e) {
+          if (this.dead) return;
+          const p1 = this.data.playerNum === 1;
+          const controls = p1
+            ? { u:'w', d:'s', l:'a', r:'d', boost: 'q' }
+            : { u:'ArrowUp', d:'ArrowDown', l:'ArrowLeft', r:'ArrowRight', boost: 'ñ' };
 
-        if (pos.distanceTo(this.lastTrailPos) >= TRAIL_STEP) {
+          if (e.key === controls.u && this.heading !== 'down') this.setDir(0,0,-1,'up',0);
+          else if (e.key === controls.d && this.heading !== 'up') this.setDir(0,0,1,'down',Math.PI);
+          else if (e.key === controls.l && this.heading !== 'right') this.setDir(-1,0,0,'left',Math.PI/2);
+          else if (e.key === controls.r && this.heading !== 'left') this.setDir(1,0,0,'right',-Math.PI/2);
+
+          if (e.key === controls.boost && this.canBoost) this.activateBoost();
+        },
+
+        activateBoost() {
+          this.boosting = true;
+          this.canBoost = false;
+          const light = this.el.querySelector('a-light');
+          if(light) light.setAttribute('intensity', 4); 
+          
+          setTimeout(() => {
+            this.boosting = false;
+            if(light) light.setAttribute('intensity', 2);
+          }, 500); 
+          
+          setTimeout(() => { this.canBoost = true; }, 3000);
+        },
+
+        setDir(x,y,z,h,rot) {
+          this.dir.set(x,y,z);
+          this.heading = h;
+          this.el.object3D.rotation.y = rot;
+        },
+
+        tick(time, delta) {
+          if (this.dead) return;
+
+          const speed = this.boosting ? this.speed * 2.5 : this.speed;
+          const step = speed * delta / 1000;
+          const pos = this.el.object3D.position;
+          pos.addScaledVector(this.dir, step);
+
+          if (Math.abs(pos.x) > ARENA_LIMIT || Math.abs(pos.z) > ARENA_LIMIT) {
+            this.die();
+            return;
+          }
+
+          if (pos.distanceTo(this.lastTrailPos) >= TRAIL_STEP) {
+            this.createTrailSegment(pos);
+            this.lastTrailPos.copy(pos);
+          }
+          
+          this.checkCollisions(pos);
+        },
+
+        createTrailSegment(pos) {
           const seg = document.createElement('a-box');
           seg.setAttribute('width', 0.6);
           seg.setAttribute('height', 1.2);
           seg.setAttribute('depth', 0.6);
           seg.setAttribute('color', this.data.color);
           seg.setAttribute('class', 'wall'); 
-          
           seg.setAttribute('material', `shader: standard; opacity: 0.6; transparent: true; emissive:${this.data.color}; emissiveIntensity: 2`);
-          
           seg.object3D.position.set(pos.x, 0.6, pos.z);
+          
           document.querySelector('a-scene').appendChild(seg);
-
           trails.push({ x: pos.x, z: pos.z, owner: this.data.playerNum });
-          this.lastTrailPos.copy(pos);
-        }
-        
-        // Colisiones
-        for (let i = 0; i < trails.length; i++) {
+        },
+
+        checkCollisions(pos) {
+          const len = trails.length;
+          for (let i = 0; i < len; i++) {
             const t = trails[i];
             const dx = pos.x - t.x;
             const dz = pos.z - t.z;
             if (dx*dx + dz*dz < 0.5) {
-              if (t.owner !== this.data.playerNum || i < trails.length - 12) { 
+              if (t.owner !== this.data.playerNum || i < len - 12) { 
                 this.die();
                 return;
               }
             }
           }
-      },
+        },
 
-      die() {
-        if (this.dead) return;
-        this.dead = true;
-        const boom = document.createElement('a-entity');
-        boom.setAttribute('geometry', 'primitive: sphere; radius: 0.5');
-        boom.setAttribute('material', 'color: red; emissive: red; emissiveIntensity: 5');
-        boom.setAttribute('animation', 'property: scale; to: 10 10 10; dur: 300');
-        boom.setAttribute('animation__fade', 'property: material.opacity; to: 0; dur: 300');
-        boom.object3D.position.copy(this.el.object3D.position);
-        document.querySelector('a-scene').appendChild(boom);
-        setTimeout(() => location.reload(), 2000);
-      }
-    });
-  </script>
-</head>
+        die() {
+          if (this.dead) return;
+          this.dead = true;
+          const boom = document.createElement('a-entity');
+          boom.setAttribute('geometry', 'primitive: sphere; radius: 0.5');
+          boom.setAttribute('material', 'color: red; emissive: red; emissiveIntensity: 5; opacity: 1; transparent: true');
+          boom.setAttribute('animation', 'property: scale; to: 10 10 10; dur: 300');
+          boom.setAttribute('animation__fade', 'property: material.opacity; to: 0; dur: 300');
+          boom.object3D.position.copy(this.el.object3D.position);
+          document.querySelector('a-scene').appendChild(boom);
+          setTimeout(() => boom.remove(), 350);
+          setTimeout(() => location.reload(), 2000);
+        }
+      });
 
-<body>
-  <a-scene loading-screen="enabled:false" background="color: #050505" renderer="colorManagement: true;">
+      AFRAME.registerComponent('model-color', {
+        schema: {type: 'color', default: '#FFF'},
+        init: function () {
+          this.el.addEventListener('model-loaded', () => {
+            const newColor = new THREE.Color(this.data);
+            this.el.object3D.traverse((node) => {
+              if (node.isMesh && node.material) {
+                node.material.color.copy(newColor);
+                node.material.emissive.copy(newColor);
+                node.material.emissiveIntensity = 2.0; 
+              }
+            });
+          });
+        }
+      });
+    </script>
+  </head>
 
-    <a-entity position="0 65 50" rotation="-55 0 0">
-        <a-camera look-controls="enabled: false" wasd-controls="enabled: false"></a-camera>
-    </a-entity>
+  <body>
+    <a-scene loading-screen="enabled:false" background="color: #050505" renderer="colorManagement: true; antialias: true;">
 
-    <a-plane position="0 0 0" rotation="-90 0 0" width="200" height="200" color="#000000"></a-plane>
-    
-    <a-plane position="0 0.1 0" rotation="-90 0 0" width="200" height="200" 
-             color="#66b4ce" material="wireframe: true; opacity: 0.4" 
-             segments-width="80" segments-height="80"></a-plane>
+      <a-assets>
+          <a-asset-item id="modelo-moto" src="models/tron_moto_sdc__free.glb"></a-asset-item>
+          <a-asset-item id="modelo-moto_2" src="models/tron_moto_-_low_poly_-_sdc_-_free.glb"></a-asset-item>
+          <a-asset-item id="bit" src="models/tron_1982_bit.glb"></a-asset-item>
+          <a-asset-item id="recognizer" src="models/tron.glb"></a-asset-item>
+          <a-asset-item id="edificios" src="models/edificios.glb"></a-asset-item>
+      </a-assets>
 
+      <a-entity position="0 65 50" rotation="-55 0 0">
+          <a-camera look-controls="enabled: false" wasd-controls="enabled: false"></a-camera>
+      </a-entity>
 
-    <a-entity id="arena-walls">
-        <a-box class="wall" position="-40 1 0" width="0.5" height="2" depth="80" color="#284b65" material="emissive: #a9a8e9 ; emissiveIntensity: 0.5"></a-box>
-        <a-box class="wall" position="40 1 0" width="0.5" height="2" depth="80" color="#284b65" material="emissive: #a9a8e9 ; emissiveIntensity: 0.5"></a-box>
-        <a-box class="wall" position="0 1 -40" width="80" height="2" depth="0.5" color="#284b65" material="emissive: #a9a8e9 ; emissiveIntensity: 0.5"></a-box>
-        <a-box class="wall" position="0 1 40" width="80" height="2" depth="0.5" color="#284b65" material="emissive: #a9a8e9 ; emissiveIntensity: 0.5"></a-box>
-    </a-entity>
+      <a-plane position="0 0 0" rotation="-90 0 0" width="200" height="200" color="#000000"></a-plane>
+      
+      <a-plane position="0 0.1 0" rotation="-90 0 0" width="200" height="200" 
+              color="#66b4ce" material="wireframe: true; opacity: 0.4" 
+              segments-width="80" segments-height="80"></a-plane>
 
+      <a-entity color="#7DFDFE" position="0 5 0" animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear">
+          <a-entity gltf-model="#bit" scale="0.0005 0.0005 0.0005" rotation="0 180 0" model-color="yellow"></a-entity>
+      </a-entity>
 
-    <a-entity player-movement="playerNum:1; color:#00ffff; startX:-10; startZ:30">
-      <a-box position="0 0.5 0" width="0.8" height="0.5" depth="1.5" color="#00ffff" material="emissive: #00ffff; emissiveIntensity: 1.5"></a-box>
-      <a-light type="point" color="#d6f1f3" intensity="2" distance="15" decay="1.5" position="0 1 0"></a-light>
-    </a-entity>
+      <a-entity position="-50 15 -50" animation="property: position; to: 50 15 -50; dir: alternate; loop: true; dur: 15000; easing: linear">
+          <a-entity gltf-model="#recognizer" scale=".2 .2 .2" rotation="0 -90 0"></a-entity>
+          <a-light type="point" color="#ff6600" intensity="6" distance="120" decay="2" position="0 -5 0"></a-light>
+      </a-entity>
 
+      
 
-    <a-entity player-movement="playerNum:2; color:#ff6600; startX:10; startZ:30">
-      <a-box position="0 0.5 0" width="0.8" height="0.5" depth="1.5" color="#ff6600" material="emissive: #ff6600; emissiveIntensity: 1.5"></a-box>
-      <a-light type="point" color="#ff6600" intensity="2" distance="15" decay="1.5" position="0 1 0"></a-light>
-    </a-entity>
+      <a-entity id="arena-walls">
+          <a-box class="wall" position="-40 1 0" width="0.5" height="2" depth="80" color="#141414" material="emissive: #3D3D3D; emissiveIntensity: 0.5"></a-box>
+          <a-box class="wall" position="40 1 0" width="0.5" height="2" depth="80" color="#141414" material="emissive: #3D3D3D; emissiveIntensity: 0.5"></a-box>
+          <a-box class="wall" position="0 1 -40" width="80" height="2" depth="0.5" color="#141414" material="emissive: #3D3D3D; emissiveIntensity: 0.5"></a-box>
+          <a-box class="wall" position="0 1 40" width="80" height="2" depth="0.5" color="#141414" material="emissive: #3D3D3D; emissiveIntensity: 0.5"></a-box>
+      </a-entity>
 
-  </a-scene>
-</body>
-</html>
+      <a-entity player-movement="playerNum:1; color:#00ffff; startX:-10; startZ:30">
+          <a-entity gltf-model="#modelo-moto" scale="0.005 0.005 0.005" rotation="0 180 0"></a-entity>
+          <a-light type="point" color="#d6f1f3" intensity="2" distance="15" decay="1.5" position="0 1 0"></a-light>
+      </a-entity>
+
+      <a-entity player-movement="playerNum:2; color:#ff6600; startX:10; startZ:30">
+          <a-entity gltf-model="#modelo-moto_2" scale="0.4 0.4 0.4" rotation="0 180 0"></a-entity>
+          <a-light type="point" color="#ff6600" intensity="2" distance="15" decay="1.5" position="0 1 0"></a-light>
+      </a-entity>
+
+    </a-scene>
+  </body>
+  </html>
