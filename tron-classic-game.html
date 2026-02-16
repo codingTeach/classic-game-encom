@@ -9,6 +9,7 @@
       const ARENA_LIMIT = 39.5;
       const TRAIL_STEP = 0.5; 
       const trails = [];
+      let gameStarted = false;
 
       AFRAME.registerComponent('player-movement', {
         schema: {
@@ -74,7 +75,7 @@
         },
 
         tick(time, delta) {
-          if (this.dead) return;
+          if (!gameStarted || this.dead) return;
 
           const speed = this.boosting ? this.speed * 2.5 : this.speed;
           const step = speed * delta / 1000;
@@ -153,6 +154,19 @@
           });
         }
       });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !gameStarted) {
+          gameStarted = true;
+
+          const menu = document.querySelector('#start-menu');
+          menu.setAttribute('animation', 'property: scale; to: 0 0 0; dur: 500; easing: easeInBack');
+
+          setTimeout(() => menu.remove(), 550);
+
+          console.log("¡Que comience el juego!");
+          }
+      });
     </script>
   </head>
 
@@ -165,7 +179,21 @@
           <a-asset-item id="bit" src="models/tron_1982_bit.glb"></a-asset-item>
           <a-asset-item id="recognizer" src="models/tron.glb"></a-asset-item>
           <a-asset-item id="edificios" src="models/edificios.glb"></a-asset-item>
+          <a-asset-item id="tron-logo" src="models/tron_legacy-era_neon_logo.glb"></a-asset-item>
       </a-assets>
+
+      <a-entity id="start-menu" position="0 25 20" rotation="-30 0 0">
+      
+        <a-entity gltf-model="#tron-logo" scale="2 2 2" position="0 5 0"
+          animation="property: position; to: 0 5.5 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine">
+        </a-entity>
+      
+        <a-entity text="value: PRESIONA ENTER PARA JUGAR; align: center; width: 40; color: #7DFDFE; font: monoid"
+          position="0 0 0">
+        </a-entity>
+      
+        <a-light type="point" color="#00ffff" intensity="2" distance="20"></a-light>
+      </a-entity>
 
       <a-entity position="0 65 50" rotation="-55 0 0">
           <a-camera look-controls="enabled: false" wasd-controls="enabled: false"></a-camera>
