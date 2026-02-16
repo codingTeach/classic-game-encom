@@ -253,6 +253,15 @@
           });
           }
       });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key.toLowerCase() === 'r') {
+          scoreP1 = 0;
+          scoreP2 = 0;
+          document.querySelector('#text-p1').setAttribute('text', 'value', 'P1: 0');
+          document.querySelector('#text-p2').setAttribute('text', 'value', 'P2: 0');
+        }
+      });
     </script>
   </head>
 
