@@ -10,6 +10,8 @@
       const TRAIL_STEP = 0.5; 
       const trails = [];
       let gameStarted = false;
+      let scoreP1 = 0;
+      let scoreP2 = 0;
 
       AFRAME.registerComponent('player-movement', {
         schema: {
@@ -134,6 +136,25 @@
           boom.setAttribute('animation__fade', 'property: material.opacity; to: 0; dur: 300');
           boom.object3D.position.copy(this.el.object3D.position);
           document.querySelector('a-scene').appendChild(boom);
+
+          if (this.data.playerNum === 1) {
+            scoreP2++;
+            document.querySelector('#text-p2').setAttribute('text', 'value', `P2: ${scoreP2}`);
+            let scoreE2 = document.querySelector(this.data.playerNum === 1 ? '#text-p2' : '#text-p1');
+            scoreE2.setAttribute('animation', 'property: scale; from: 1.5 1.5 1.5; to: 1 1 1; dur: 500');
+            setTimeout(() => {
+              scoreE2.removeAttribute('animation');
+            }, 510);
+          } else {
+            scoreP1++;
+            document.querySelector('#text-p1').setAttribute('text', 'value', `P1: ${scoreP1}`);
+            let scoreEl = document.querySelector(this.data.playerNum === 2 ? '#text-p1' : '#text-p2');
+            scoreEl.setAttribute('animation', 'property: scale; from: 1.5 1.5 1.5; to: 1 1 1; dur: 500');
+            setTimeout(() => {
+              scoreE1.removeAttribute('animation');
+            }, 510);
+          }
+          
           setTimeout(() => boom.remove(), 350);
           setTimeout(() => {
             if (typeof resetGame === "function") resetGame();
@@ -246,6 +267,11 @@
           <a-asset-item id="edificios" src="models/edificios.glb"></a-asset-item>
           <a-asset-item id="tron-logo" src="models/tron_legacy-era_neon_logo.glb"></a-asset-item>
       </a-assets>
+
+      <a-entity id="ui-score" position="0 55 10" rotation="-55 0 0">
+        <a-entity id="text-p1" text="value: P1: 0; color: #00ffff; align: center; width: 30; font: monoid" position="-15 0 0"></a-entity>
+        <a-entity id="text-p2" text="value: P2: 0; color: #ff6600; align: center; width: 30; font: monoid" position="15 0 0"></a-entity>
+      </a-entity>
 
       <a-entity id="start-menu" position="0 25 20" rotation="-30 0 0">
       
