@@ -295,6 +295,9 @@
           <a-asset-item id="recognizer" src="models/tron.glb"></a-asset-item>
           <a-asset-item id="edificios" src="models/edificios.glb"></a-asset-item>
           <a-asset-item id="tron-logo" src="models/tron_legacy-era_neon_logo.glb"></a-asset-item>
+
+          <img id="wasd" src="/img/teclas-wasd.png">
+          <img id="arrows" src="/img/teclas-flechas.png">
       </a-assets>
 
       <a-entity id="ui-score" position="0 55 10" rotation="-55 0 0">
@@ -351,21 +354,24 @@
           <a-light type="point" color="#ff6600" intensity="2" distance="15" decay="1.5" position="0 1 0"></a-light>
       </a-entity>
 
-      <a-entity text="value: Usa WASD para 
+      <a-entity text="value: Usa            para 
           jugador 1; align: center; width: 80; color: #7DFDFE; font: monoid"
           position="-60 10 10" rotation="-60 0 0">
       </a-entity>
 
-      <a-entity text="value: Usa  <- -> para 
+      <a-entity position="-54 20 10" rotation="-60 0 0">
+        <a-image src="/img/teclas-wasd.png" width="20" height="20"></a-image>
+      </a-entity>
+
+      <a-entity text="value: Usa           para 
           jugador 2; align: center; width: 80; color: #ff6600; font: monoid"
           position="60 10 10" rotation="-60 0 0">
       </a-entity>
 
-      <a-entity id="message-hint" scale="0 0 0">
-          <a-entity text="value: Presiona Q o CtrlRight para boost; align: center; width: 80; color: #7DFDFE; font: monoid"
-              position="0 40 0" rotation="-60 0 0">
-          </a-entity>
+      <a-entity position="52.2 20 10" rotation="-60 0 0">
+        <a-image src="/img/teclas-flechas.png" width="20" height="20"></a-image>
       </a-entity>
+
     </a-scene>
   </body>
   </html>
