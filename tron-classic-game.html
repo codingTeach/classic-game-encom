@@ -597,6 +597,13 @@
 
           setTimeout(() => menu.remove(), 550);
 
+          setTimeout(() => {  
+            hideHint("#controls-p1") 
+            hideHint("#controls-p2")
+            hideHint("#controls-p1-img")
+            hideHint("#controls-p2-img")
+          }, 15000);
+
           const bit = document.querySelector("#bit-entity");
 
           bit.setAttribute("visible", "true");
@@ -640,13 +647,13 @@
             "property: scale; from: 0 0 0; to: 1 1 1; dur: 500; easing: easeOutBack",
           );
           setTimeout(() => {
-            hideHint();
+            hideHint("#message-hint");
           }, 5000);
         }, 5000);
       }
 
       function hideHint(params) {  
-        const messageHint = document.querySelector('#message-hint');
+        const messageHint = document.querySelector(params);
         messageHint.setAttribute('animation__show', 'property: scale; from: 0 0 0; to: 1 1 1; dur: 500; easing: easeOutBack');
         messageHint.setAttribute('animation__hide', 'property: scale; to: 0 0 0; dur: 500; easing: easeInBack');
       }
@@ -853,6 +860,7 @@
       </a-entity>
 
       <a-entity
+        id="controls-p1"
         text="value: Usa            para 
           jugador 1; align: center; width: 80; color: #7DFDFE; font: monoid"
         position="-60 10 10"
@@ -860,11 +868,12 @@
       >
       </a-entity>
 
-      <a-entity position="-54 20 10" rotation="-60 0 0">
+      <a-entity id="controls-p1-img" position="-54 20 10" rotation="-60 0 0">
         <a-image src="/img/teclas-wasd.png" width="20" height="20"></a-image>
       </a-entity>
 
       <a-entity
+        id="controls-p2"
         text="value: Usa           para 
           jugador 2; align: center; width: 80; color: #ff6600; font: monoid"
         position="60 10 10"
@@ -872,7 +881,7 @@
       >
       </a-entity>
 
-      <a-entity position="52.2 20 10" rotation="-60 0 0">
+      <a-entity id="controls-p2-img" position="52.2 20 10" rotation="-60 0 0">
         <a-image src="/img/teclas-flechas.png" width="20" height="20"></a-image>
       </a-entity>
 
