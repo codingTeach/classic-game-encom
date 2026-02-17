@@ -204,11 +204,11 @@
         menu.setAttribute('rotation', '-30 0 0');
         
         menu.innerHTML = `
-          <a-entity gltf-model="#tron-logo" scale="2 2 2" position="0 5 0" 
-                    model-color="#ffffff"
-                    animation="property: position; to: 0 5.5 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine">
+          <a-entity gltf-model="#tron-logo" scale="9 9 9" position="0 10 0" 
+                    model-color="#00ffff"
+                    animation="property: position; to: 0 10.5 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine">
           </a-entity>
-          <a-entity text="value: PRESIONA ENTER PARA COMENZAR; align: center; width: 40; color: #7DFDFE; font: monoid"
+          <a-entity text="value: PRESIONA ENTER PARA COMENZAR; align: center; width: 60; color: #7DFDFE; font: monoid"
                     position="0 0 0">
           </a-entity>
           <a-light type="point" color="#00ffff" intensity="2" distance="20"></a-light>
@@ -284,11 +284,11 @@
 
       <a-entity id="start-menu" position="0 25 20" rotation="-30 0 0">
       
-        <a-entity gltf-model="#tron-logo" scale="2 2 2" position="0 5 0"
-          animation="property: position; to: 0 5.5 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine">
+        <a-entity gltf-model="#tron-logo" scale="9 9 9" position="0 10 0"
+          animation="property: position; to: 0 10.5 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine">
         </a-entity>
       
-        <a-entity text="value: PRESIONA ENTER PARA JUGAR; align: center; width: 40; color: #7DFDFE; font: monoid"
+        <a-entity text="value: PRESIONA ENTER PARA JUGAR; align: center; width: 60; color: #7DFDFE; font: monoid"
           position="0 0 0">
         </a-entity>
       
@@ -313,8 +313,6 @@
           <a-entity gltf-model="#recognizer" scale=".2 .2 .2" rotation="0 -90 0"></a-entity>
           <a-light type="point" color="#ff6600" intensity="6" distance="120" decay="2" position="0 -5 0"></a-light>
       </a-entity>
-
-      
 
       <a-entity id="arena-walls">
           <a-box class="wall" position="-40 1 0" width="0.5" height="2" depth="80" color="#141414" material="emissive: #3D3D3D; emissiveIntensity: 0.5"></a-box>
