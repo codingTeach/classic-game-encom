@@ -236,7 +236,7 @@
       window.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !gameStarted) {
           gameStarted = true;
-
+          showHint();
           const menu = document.querySelector('#start-menu');
           menu.setAttribute('animation', 'property: scale; to: 0 0 0; dur: 500; easing: easeInBack');
           setTimeout(() => menu.remove(), 550);
@@ -262,6 +262,26 @@
           document.querySelector('#text-p2').setAttribute('text', 'value', 'P2: 0');
         }
       });
+
+      function showHint() {
+        const messageHint = document.querySelector('#message-hint');
+        setTimeout(() => {
+          messageHint.setAttribute('visible', 'true');
+          messageHint.setAttribute('animation__show', 'property: scale; from: 0 0 0; to: 1 1 1; dur: 500; easing: easeOutBack');
+          setTimeout(() => {
+            hideHint();
+          }, 5000);
+        }, 5000);
+
+      }
+
+      function hideHint(params) {  
+        const messageHint = document.querySelector('#message-hint');
+        messageHint.setAttribute('animation__show', 'property: scale; from: 0 0 0; to: 1 1 1; dur: 500; easing: easeOutBack');
+        messageHint.setAttribute('animation__hide', 'property: scale; to: 0 0 0; dur: 500; easing: easeInBack');
+      }
+
+      showHint();
     </script>
   </head>
 
@@ -341,6 +361,11 @@
           position="60 10 10" rotation="-60 0 0">
       </a-entity>
 
+      <a-entity id="message-hint" scale="0 0 0">
+          <a-entity text="value: Presiona Q o CtrlRight para boost; align: center; width: 80; color: #7DFDFE; font: monoid"
+              position="0 40 0" rotation="-60 0 0">
+          </a-entity>
+      </a-entity>
     </a-scene>
   </body>
   </html>
