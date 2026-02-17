@@ -10,7 +10,7 @@
     <script>
       const ARENA_LIMIT = 39.5;
       const TRAIL_STEP = 0.5;
-      const VICTORY_SCORE = 11;
+      const VICTORY_SCORE = 10;
       const trails = [];
 
       let gameStarted = false;
@@ -353,7 +353,7 @@
                   this.el.setAttribute("material", "opacity: 1");
                 }, 400);
 
-                return; // SOBREVIVE
+                return;
               }
 
               this.die();
@@ -443,20 +443,28 @@
         },
         
         win(){
-          const winner = this.data.playerNum === VICTORY_SCORE ? 'P1' : 'P2';
+          gameStarted = false;
+          const winner = this.data.playerNum === VICTORY_SCORE ? 'P2' : 'P1';
           const message = document.createElement('a-entity');
-          message.setAttribute('text', `value: ${winner} WINS!; align: center; width: 60; color: #7DFDFE; font: monoid`);
+          if (winner === "P1") {
+            message.setAttribute('text', `value: ${winner} WINS!; align: center; width: 60; color: #7DFDFE; font: monoid`);
+          }
+          else {
+            message.setAttribute('text', `value: ${winner} WINS!; align: center; width: 60; color: #ff6600; font: monoid`);
+          }
           message.setAttribute('position', '0 30 0');
           message.setAttribute('animation', 'property: scale; from: 0 0 0; to: 1 1 1; dur: 500; easing: easeOutBack');
           document.querySelector('a-scene').appendChild(message);
 
           setTimeout(() => {
               message.setAttribute('animation', 'property: scale; to: 0 0 0; dur: 500; easing: easeInBack');
-              setTimeout(() => message.remove(), 550);
               scoreP1 = 0;
               scoreP2 = 0;
               document.querySelector('#text-p1').setAttribute('text', 'value', 'P1: 0');
               document.querySelector('#text-p2').setAttribute('text', 'value', 'P2: 0');
+              setTimeout(() => {
+                if (typeof resetGame === "function") resetGame();
+              }, 5000);
             }, 5000);
         }
       });
@@ -869,7 +877,8 @@
       </a-entity>
 
       <a-entity id="message-hint" scale="0 0 0">
-          <a-entity text="value: Presiona Q o Ctrl para boost; align: center; width: 80; color: #7DFDFE; font: monoid"
+          <a-entity text="value: Agarra los orbes y 
+              presiona Q o Ctrl para usar power up; align: center; width: 80; color: #7DFDFE; font: monoid"
               position="0 40 0" rotation="-60 0 0">
           </a-entity>
       </a-entity>
