@@ -54,4 +54,4 @@ Aquí definimos cómo programar las reglas básicas:
 
 ### Boceto 
 
-![boceto](tronboceto.jpeg)
+![boceto](/img/tronboceto.jpeg)
