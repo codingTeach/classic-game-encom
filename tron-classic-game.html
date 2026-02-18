@@ -10,7 +10,7 @@
     <script>
       const ARENA_LIMIT = 39.5;
       const TRAIL_STEP = 0.5;
-      const VICTORY_SCORE = 10;
+      const VICTORY_SCORE = 1;
       const trails = [];
 
       let gameStarted = false;
@@ -378,109 +378,116 @@
         },
 
         die() {
-          if (this.dead) return;
+              if (this.dead) return;
+                  this.dead = true;
 
-          this.dead = true;
+                    if (this.shieldEntity) {
+                        this.shieldEntity.remove();
+                        this.shieldEntity = null;
+                    }
 
-          if (this.shieldEntity) {
-            this.shieldEntity.remove();
-            this.shieldEntity = null;
-          }
+                    const boom = document.createElement("a-entity");
+                    boom.setAttribute(
+                        "geometry",
+                        "primitive: sphere; radius: 0.5",
+                    );
+                    boom.setAttribute(
+                        "material",
+                        "color: red; emissive: red; emissiveIntensity: 5; opacity: 1; transparent: true",
+                    );
+                    boom.setAttribute(
+                        "animation",
+                        "property: scale; to: 10 10 10; dur: 300",
+                    );
+                    boom.setAttribute(
+                        "animation__fade",
+                        "property: material.opacity; to: 0; dur: 300",
+                    );
+                    boom.object3D.position.copy(this.el.object3D.position);
+                    document.querySelector("a-scene").appendChild(boom);
+                    setTimeout(() => boom.remove(), 350);
 
-          const boom = document.createElement("a-entity");
 
-          boom.setAttribute("geometry", "primitive: sphere; radius: 0.5");
+                    const roundWinner = this.data.playerNum === 1 ? 2 : 1;
 
-          boom.setAttribute(
-            "material",
-            "color: red; emissive: red; emissiveIntensity: 5; opacity: 1; transparent: true",
-          );
+                    if (roundWinner === 1) {
+                        scoreP1++;
+                        const textP1 = document.querySelector("#text-p1");
+                        textP1.setAttribute("text", "value", `P1: ${scoreP1}`);
 
-          boom.setAttribute(
-            "animation",
-            "property: scale; to: 10 10 10; dur: 300",
-          );
+                        textP1.setAttribute(
+                            "animation",
+                            "property: scale; from: 1.5 1.5 1.5; to: 1 1 1; dur: 500",
+                        );
+                        setTimeout(() => textP1.removeAttribute("animation"), 550);
+                    } else {
+                        scoreP2++;
+                        const textP2 = document.querySelector("#text-p2");
+                        textP2.setAttribute("text", "value", `P2: ${scoreP2}`);
 
-          boom.setAttribute(
-            "animation__fade",
-            "property: material.opacity; to: 0; dur: 300",
-          );
+                        textP2.setAttribute(
+                            "animation",
+                            "property: scale; from: 1.5 1.5 1.5; to: 1 1 1; dur: 500",
+                        );
+                        setTimeout(() => textP2.removeAttribute("animation"), 550);
+                    }
 
-          boom.object3D.position.copy(this.el.object3D.position);
 
-          document.querySelector("a-scene").appendChild(boom);
+                    if (scoreP1 >= VICTORY_SCORE || scoreP2 >= VICTORY_SCORE) {
+                        this.win(roundWinner);
+                    } else {
 
-          if (scoreP1 >= VICTORY_SCORE - 1) {
-            this.win();
-          }
-          else if (this.data.playerNum === 1) {
-            scoreP2++;
+                        setTimeout(() => {
+                            if (typeof resetGame === "function") resetGame();
+                        }, 2000);
+                    }
+                },
 
-            document
-              .querySelector("#text-p2")
-              .setAttribute("text", "value", `P2: ${scoreP2}`);
-            let scoreE2 = document.querySelector(
-              this.data.playerNum === 1 ? "#text-p2" : "#text-p1",
-            );
-            scoreE2.setAttribute(
-              "animation",
-              "property: scale; from: 1.5 1.5 1.5; to: 1 1 1; dur: 500",
-            );
+                win(winnerNum) {
+                    gameStarted = false;
+                    const winnerName = winnerNum === 1 ? "P1" : "P2";
+                    const color = winnerNum === 1 ? "#7DFDFE" : "#ff6600";
+
+
+                    const message = document.createElement("a-entity");
+                    message.setAttribute(
+                        "text",
+                        `value: ${winnerName} WINS!; align: center; width: 60; color: ${color}; font: monoid`,
+                    );
+                    message.setAttribute("position", "0 30 0");
+                    
+
+                    message.setAttribute(
+                        "animation",
+                        "property: scale; from: 0 0 0; to: 1 1 1; dur: 500; easing: easeOutBack",
+                    );
+                    document.querySelector("a-scene").appendChild(message);
+
+
+                    setTimeout(() => {
+
+                        message.setAttribute(
+                            "animation",
+                            "property: scale; to: 0 0 0; dur: 500; easing: easeInBack",
+                        );
+
+
+                        scoreP1 = 0;
+                        scoreP2 = 0;
+                        
+                        document
+                            .querySelector("#text-p1")
+                            .setAttribute("text", "value", "P1: 0");
+                        document
+                            .querySelector("#text-p2")
+                            .setAttribute("text", "value", "P2: 0");
+
             setTimeout(() => {
-              scoreE2.removeAttribute("animation");
-            }, 510);
-            setTimeout(() => {
+              message.remove();
               if (typeof resetGame === "function") resetGame();
-            }, 2000);
-          } else {
-            scoreP1++;
-
-            document
-              .querySelector("#text-p1")
-              .setAttribute("text", "value", `P1: ${scoreP1}`);
-            let scoreEl = document.querySelector(
-              this.data.playerNum === 2 ? "#text-p1" : "#text-p2",
-            );
-            scoreEl.setAttribute(
-              "animation",
-              "property: scale; from: 1.5 1.5 1.5; to: 1 1 1; dur: 500",
-            );
-            setTimeout(() => {
-              scoreE1.removeAttribute('animation');
-            }, 510);            
-            setTimeout(() => {
-              if (typeof resetGame === "function") resetGame();
-            }, 2000);
-          }
-
-          setTimeout(() => boom.remove(), 350);
+            }, 500);
+          }, 5000);
         },
-        
-        win(){
-          gameStarted = false;
-          const winner = this.data.playerNum === VICTORY_SCORE ? 'P2' : 'P1';
-          const message = document.createElement('a-entity');
-          if (winner === "P1") {
-            message.setAttribute('text', `value: ${winner} WINS!; align: center; width: 60; color: #7DFDFE; font: monoid`);
-          }
-          else {
-            message.setAttribute('text', `value: ${winner} WINS!; align: center; width: 60; color: #ff6600; font: monoid`);
-          }
-          message.setAttribute('position', '0 30 0');
-          message.setAttribute('animation', 'property: scale; from: 0 0 0; to: 1 1 1; dur: 500; easing: easeOutBack');
-          document.querySelector('a-scene').appendChild(message);
-
-          setTimeout(() => {
-              message.setAttribute('animation', 'property: scale; to: 0 0 0; dur: 500; easing: easeInBack');
-              scoreP1 = 0;
-              scoreP2 = 0;
-              document.querySelector('#text-p1').setAttribute('text', 'value', 'P1: 0');
-              document.querySelector('#text-p2').setAttribute('text', 'value', 'P2: 0');
-              setTimeout(() => {
-                if (typeof resetGame === "function") resetGame();
-              }, 5000);
-            }, 5000);
-        }
       });
 
       function resetGame() {
