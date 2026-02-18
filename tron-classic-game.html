@@ -10,7 +10,7 @@
     <script>
       const ARENA_LIMIT = 39.5;
       const TRAIL_STEP = 0.5;
-      const VICTORY_SCORE = 1;
+      const VICTORY_SCORE = 5;
       const trails = [];
 
       let gameStarted = false;
@@ -456,7 +456,7 @@
                     const message = document.createElement("a-entity");
                     message.setAttribute(
                         "text",
-                        `value: ${winnerName} WINS!; align: center; width: 60; color: ${color}; font: monoid`,
+                        `value: ${winnerName} WINS!; align: center; width: 100; color: ${color}; font: monoid`,
                     );
                     message.setAttribute("position", "0 30 0");
                     
@@ -490,7 +490,7 @@
               message.remove();
               if (typeof resetGame === "function") resetGame();
             }, 500);
-          }, 5000);
+          }, 2500);
         },
       });
 
