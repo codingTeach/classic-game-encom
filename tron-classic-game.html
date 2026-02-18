@@ -19,7 +19,6 @@
 
       const POWERUP_TYPES = ["SHIELD", "TURBO"];
 
-      // 1. Tu lista de canciones
       const playlist = [
         './Sounds/Soundtrack_1.mp3',
         './Sounds/Soundtrack_2.mp3',
@@ -36,11 +35,8 @@
       AFRAME.registerComponent("powerup-spawner", {
         init: function () {
           this.timer = 0;
-
           this.spawnInterval = 5000;
-
           this.activePowerUp = null;
-
           this.despawnTimer = null;
         },
 
@@ -49,26 +45,20 @@
 
           if (!this.activePowerUp) {
             this.timer += delta;
-
             if (this.timer >= this.spawnInterval) {
               this.spawnPowerUp();
-
               this.timer = 0;
             }
           } else {
             this.activePowerUp.object3D.rotation.y += 0.02;
-
             this.checkCollection();
           }
         },
 
         spawnPowerUp: function () {
           let x = Math.random() * 60 - 30;
-
           let z = Math.random() * 60 - 30;
-
           const players = document.querySelectorAll("[player-movement]");
-
           let validPosition = true;
 
           players.forEach((p) => {
@@ -82,13 +72,9 @@
           if (!validPosition) return;
 
           const el = document.createElement("a-entity");
-
           el.setAttribute("gltf-model", "#bit");
-
-          el.setAttribute("scale", "0.0003 0.0003 0.0003");
-
+          el.setAttribute("scale", "0 0 0"); 
           el.setAttribute("position", `${x} 1 ${z}`);
-
           el.setAttribute("model-color", "#FF9300");
 
           el.setAttribute(
@@ -97,25 +83,41 @@
               x +
               " 1.5 " +
               z +
-              "; dir: alternate; loop: true; dur: 1000; easing: easeInOutSine",
+              "; dir: alternate; loop: true; dur: 1000; easing: easeInOutSine"
           );
 
-          document.querySelector("a-scene").appendChild(el);
+          el.setAttribute("animation__spawn", {
+            property: "scale",
+            to: "0.0003 0.0003 0.0003",
+            dur: 800,
+            easing: "easeOutElastic"
+          });
 
+          document.querySelector("a-scene").appendChild(el);
           this.activePowerUp = el;
 
           this.despawnTimer = setTimeout(() => {
-            if (this.activePowerUp) {
-              this.removePowerUp();
-            }
+            this.removePowerUp(); 
           }, 10000);
         },
 
         removePowerUp: function () {
           if (this.activePowerUp) {
-            this.activePowerUp.remove();
-
+            const el = this.activePowerUp;
             this.activePowerUp = null;
+
+            el.setAttribute("animation__despawn", {
+                property: "scale",
+                to: "0 0 0",
+                dur: 500,
+                easing: "easeInBack"
+            });
+
+            setTimeout(() => {
+                if (el.parentNode) {
+                    el.remove();
+                }
+            }, 500);
           }
 
           clearTimeout(this.despawnTimer);
@@ -125,7 +127,6 @@
           if (!this.activePowerUp) return;
 
           const players = document.querySelectorAll("[player-movement]");
-
           const pupPos = this.activePowerUp.object3D.position;
 
           players.forEach((p) => {
@@ -141,9 +142,12 @@
         },
 
         reset: function () {
-          this.removePowerUp();
-
-          this.timer = 0;
+            if (this.activePowerUp) {
+                this.activePowerUp.remove();
+                this.activePowerUp = null;
+            }
+            clearTimeout(this.despawnTimer);
+            this.timer = 0;
         },
       });
 
