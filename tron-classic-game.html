@@ -19,6 +19,20 @@
 
       const POWERUP_TYPES = ["SHIELD", "TURBO"];
 
+      // 1. Tu lista de canciones
+      const playlist = [
+        './Sounds/Soundtrack_1.mp3',
+        './Sounds/Soundtrack_2.mp3',
+        './Sounds/Soundtrack_3.mp3',
+      ];
+
+      let lastPlayedIndex = -1;
+      const audioPlayer = new Audio();
+
+      document.addEventListener("click", () => {
+        document.documentElement.requestFullscreen();
+      });
+
       AFRAME.registerComponent("powerup-spawner", {
         init: function () {
           this.timer = 0;
@@ -240,7 +254,7 @@
                 d: "ArrowDown",
                 l: "ArrowLeft",
                 r: "ArrowRight",
-                activate: "Control",
+                activate: "Shift",
               };
 
           if (e.key === controls.u && this.heading !== "down")
@@ -658,6 +672,23 @@
         messageHint.setAttribute('animation__hide', 'property: scale; to: 0 0 0; dur: 500; easing: easeInBack');
       }
 
+      function playRandomSong() {
+        if (playlist.length === 0) return; 
+        
+        let randomIndex;
+
+        do {
+          randomIndex = Math.floor(Math.random() * playlist.length);
+        } while (randomIndex === lastPlayedIndex);
+
+        lastPlayedIndex = randomIndex;
+
+        audioPlayer.src = playlist[randomIndex];
+        audioPlayer.play();
+      }
+
+      audioPlayer.addEventListener('ended', playRandomSong);
+      playRandomSong();
       showHint();
     </script>
   </head>
@@ -887,7 +918,7 @@
 
       <a-entity id="message-hint" scale="0 0 0">
           <a-entity text="value: Agarra los orbes y 
-              presiona Q o Ctrl para usar power up; align: center; width: 80; color: #7DFDFE; font: monoid"
+              presiona Q o Shift R para usar power up; align: center; width: 80; color: #7DFDFE; font: monoid"
               position="0 40 0" rotation="-60 0 0">
           </a-entity>
       </a-entity>
