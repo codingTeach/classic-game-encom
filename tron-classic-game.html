@@ -24,9 +24,23 @@
         './Sounds/Soundtrack_2.mp3',
         './Sounds/Soundtrack_3.mp3',
       ];
+      
+      const sfxPowerUp = new Audio('./Sounds/power-up.mp3');
+      const sfxShield = new Audio('./Sounds/shield.mp3');
+      const sfxBreakShield = new Audio('./Sounds/break-shield.mp3');
+      const sfxTurbo = new Audio('./Sounds/turbo.mp3');
+      const sfxLose = new Audio('./Sounds/lose.mp3');
+      const sfxStart = new Audio('./Sounds/start.mp3');
+
+      
+      function playSound(audioObj) {
+          audioObj.currentTime = 0; 
+          audioObj.play().catch(e => console.log("Error playing sound:", e));
+      }
 
       let lastPlayedIndex = -1;
       const audioPlayer = new Audio();
+      audioPlayer.volume = 0.3; 
 
       document.addEventListener("click", () => {
         document.documentElement.requestFullscreen();
@@ -154,11 +168,8 @@
       AFRAME.registerComponent("player-movement", {
         schema: {
           playerNum: { type: "number" },
-
           color: { type: "color" },
-
           startX: { type: "number" },
-
           startZ: { type: "number" },
         },
 
@@ -184,9 +195,13 @@
 
         collectPowerUp(type) {
           if (this.currentPowerUp) return;
+          
+          playSound(sfxPowerUp);
+
           this.currentPowerUp = type;
 
           if (type === "SHIELD") {
+            playSound(sfxShield);
             this.activateShieldVisuals();
           } else if (type === "TURBO") {
             const light = this.el.querySelector("a-light");
@@ -219,6 +234,9 @@
 
         useTurbo() {
           if (this.currentPowerUp !== "TURBO") return;
+          
+          playSound(sfxTurbo);
+
           this.speed = this.baseSpeed * 3;
           this.currentPowerUp = null;
 
@@ -250,7 +268,6 @@
 
           const p1 = this.data.playerNum === 1;
 
-
           const controls = p1
             ? { u: "w", d: "s", l: "a", r: "d", activate: "q" }
             : {
@@ -277,9 +294,7 @@
 
         setDir(x, y, z, h, rot) {
           this.dir.set(x, y, z);
-
           this.heading = h;
-
           this.el.object3D.rotation.y = rot;
         },
 
@@ -292,7 +307,6 @@
 
           if (Math.abs(pos.x) > ARENA_LIMIT || Math.abs(pos.z) > ARENA_LIMIT) {
             this.die();
-
             return;
           }
 
@@ -335,8 +349,10 @@
 
             if (dx * dx + dz * dz < 0.5) {
               if (t.owner === this.data.playerNum && i >= len - 12) continue;
+              
               if (this.currentPowerUp === "SHIELD") {
                 this.currentPowerUp = null;
+                playSound(sfxBreakShield);
 
                 if (this.shieldEntity) {
                   this.shieldEntity.remove();
@@ -375,116 +391,116 @@
               }
 
               this.die();
-
               return;
             }
           }
         },
 
         die() {
-              if (this.dead) return;
-                  this.dead = true;
+          if (this.dead) return;
+          this.dead = true;
+          
+          playSound(sfxLose);
 
-                    if (this.shieldEntity) {
-                        this.shieldEntity.remove();
-                        this.shieldEntity = null;
-                    }
+          if (this.shieldEntity) {
+              this.shieldEntity.remove();
+              this.shieldEntity = null;
+          }
 
-                    const boom = document.createElement("a-entity");
-                    boom.setAttribute(
-                        "geometry",
-                        "primitive: sphere; radius: 0.5",
-                    );
-                    boom.setAttribute(
-                        "material",
-                        "color: red; emissive: red; emissiveIntensity: 5; opacity: 1; transparent: true",
-                    );
-                    boom.setAttribute(
-                        "animation",
-                        "property: scale; to: 10 10 10; dur: 300",
-                    );
-                    boom.setAttribute(
-                        "animation__fade",
-                        "property: material.opacity; to: 0; dur: 300",
-                    );
-                    boom.object3D.position.copy(this.el.object3D.position);
-                    document.querySelector("a-scene").appendChild(boom);
-                    setTimeout(() => boom.remove(), 350);
-
-
-                    const roundWinner = this.data.playerNum === 1 ? 2 : 1;
-
-                    if (roundWinner === 1) {
-                        scoreP1++;
-                        const textP1 = document.querySelector("#text-p1");
-                        textP1.setAttribute("text", "value", `P1: ${scoreP1}`);
-
-                        textP1.setAttribute(
-                            "animation",
-                            "property: scale; from: 1.5 1.5 1.5; to: 1 1 1; dur: 500",
-                        );
-                        setTimeout(() => textP1.removeAttribute("animation"), 550);
-                    } else {
-                        scoreP2++;
-                        const textP2 = document.querySelector("#text-p2");
-                        textP2.setAttribute("text", "value", `P2: ${scoreP2}`);
-
-                        textP2.setAttribute(
-                            "animation",
-                            "property: scale; from: 1.5 1.5 1.5; to: 1 1 1; dur: 500",
-                        );
-                        setTimeout(() => textP2.removeAttribute("animation"), 550);
-                    }
+          const boom = document.createElement("a-entity");
+          boom.setAttribute(
+              "geometry",
+              "primitive: sphere; radius: 0.5",
+          );
+          boom.setAttribute(
+              "material",
+              "color: red; emissive: red; emissiveIntensity: 5; opacity: 1; transparent: true",
+          );
+          boom.setAttribute(
+              "animation",
+              "property: scale; to: 10 10 10; dur: 300",
+          );
+          boom.setAttribute(
+              "animation__fade",
+              "property: material.opacity; to: 0; dur: 300",
+          );
+          boom.object3D.position.copy(this.el.object3D.position);
+          document.querySelector("a-scene").appendChild(boom);
+          setTimeout(() => boom.remove(), 350);
 
 
-                    if (scoreP1 >= VICTORY_SCORE || scoreP2 >= VICTORY_SCORE) {
-                        this.win(roundWinner);
-                    } else {
+          const roundWinner = this.data.playerNum === 1 ? 2 : 1;
 
-                        setTimeout(() => {
-                            if (typeof resetGame === "function") resetGame();
-                        }, 2000);
-                    }
-                },
+          if (roundWinner === 1) {
+              scoreP1++;
+              const textP1 = document.querySelector("#text-p1");
+              textP1.setAttribute("text", "value", `P1: ${scoreP1}`);
 
-                win(winnerNum) {
-                    gameStarted = false;
-                    const winnerName = winnerNum === 1 ? "P1" : "P2";
-                    const color = winnerNum === 1 ? "#7DFDFE" : "#ff6600";
+              textP1.setAttribute(
+                  "animation",
+                  "property: scale; from: 1.5 1.5 1.5; to: 1 1 1; dur: 500",
+              );
+              setTimeout(() => textP1.removeAttribute("animation"), 550);
+          } else {
+              scoreP2++;
+              const textP2 = document.querySelector("#text-p2");
+              textP2.setAttribute("text", "value", `P2: ${scoreP2}`);
 
-
-                    const message = document.createElement("a-entity");
-                    message.setAttribute(
-                        "text",
-                        `value: ${winnerName} WINS!; align: center; width: 100; color: ${color}; font: monoid`,
-                    );
-                    message.setAttribute("position", "0 30 0");
-                    
-
-                    message.setAttribute(
-                        "animation",
-                        "property: scale; from: 0 0 0; to: 1 1 1; dur: 500; easing: easeOutBack",
-                    );
-                    document.querySelector("a-scene").appendChild(message);
+              textP2.setAttribute(
+                  "animation",
+                  "property: scale; from: 1.5 1.5 1.5; to: 1 1 1; dur: 500",
+              );
+              setTimeout(() => textP2.removeAttribute("animation"), 550);
+          }
 
 
-                    setTimeout(() => {
+          if (scoreP1 >= VICTORY_SCORE || scoreP2 >= VICTORY_SCORE) {
+              this.win(roundWinner);
+          } else {
+              setTimeout(() => {
+                  if (typeof resetGame === "function") resetGame();
+              }, 2000);
+          }
+        },
 
-                        message.setAttribute(
-                            "animation",
-                            "property: scale; to: 0 0 0; dur: 500; easing: easeInBack",
-                        );
+        win(winnerNum) {
+            gameStarted = false;
+            const winnerName = winnerNum === 1 ? "P1" : "P2";
+            const color = winnerNum === 1 ? "#7DFDFE" : "#ff6600";
 
 
-                        scoreP1 = 0;
-                        scoreP2 = 0;
-                        
-                        document
-                            .querySelector("#text-p1")
-                            .setAttribute("text", "value", "P1: 0");
-                        document
-                            .querySelector("#text-p2")
-                            .setAttribute("text", "value", "P2: 0");
+            const message = document.createElement("a-entity");
+            message.setAttribute(
+                "text",
+                `value: ${winnerName} WINS!; align: center; width: 100; color: ${color}; font: monoid`,
+            );
+            message.setAttribute("position", "0 30 0");
+            
+
+            message.setAttribute(
+                "animation",
+                "property: scale; from: 0 0 0; to: 1 1 1; dur: 500; easing: easeOutBack",
+            );
+            document.querySelector("a-scene").appendChild(message);
+
+
+            setTimeout(() => {
+
+                message.setAttribute(
+                    "animation",
+                    "property: scale; to: 0 0 0; dur: 500; easing: easeInBack",
+                );
+
+
+                scoreP1 = 0;
+                scoreP2 = 0;
+                
+                document
+                    .querySelector("#text-p1")
+                    .setAttribute("text", "value", "P1: 0");
+                document
+                    .querySelector("#text-p2")
+                    .setAttribute("text", "value", "P2: 0");
 
             setTimeout(() => {
               message.remove();
@@ -518,23 +534,14 @@
 
         players.forEach((p) => {
           const comp = p.components["player-movement"];
-
           comp.dead = false;
-
           comp.currentPowerUp = null;
-
           comp.isInvulnerable = false;
-
           comp.speed = comp.baseSpeed;
-
           comp.heading = "up";
-
           comp.dir.set(0, 0, -1);
-
           comp.el.object3D.rotation.y = 0;
-
           comp.el.object3D.position.set(comp.data.startX, 0, comp.data.startZ);
-
           comp.lastTrailPos.copy(comp.el.object3D.position);
 
           if (comp.shieldEntity) {
@@ -547,7 +554,6 @@
         });
 
         const bit = document.querySelector("#bit-entity");
-
         if (bit) bit.setAttribute("visible", "false");
 
         showMenu();
@@ -557,33 +563,23 @@
         if (document.querySelector("#start-menu")) return;
 
         const scene = document.querySelector("a-scene");
-
         const menu = document.createElement("a-entity");
 
         menu.setAttribute("id", "start-menu");
-
         menu.setAttribute("position", "0 25 20");
-
         menu.setAttribute("rotation", "-30 0 0");
 
         menu.innerHTML = `
-
         <a-entity gltf-model="#tron-logo" scale="9 9 9" position="0 10 0"
-
                   model-color="#00ffff"
-
                   animation="property: position; to: 0 10.5 0; dir: alternate; loop: true; dur: 2000; easing: easeInOutSine">
-
         </a-entity>
 
         <a-entity text="value: PRESIONA ENTER PARA COMENZAR; align: center; width: 60; color: #7DFDFE; font: monoid"
-
                   position="0 0 0">
-
         </a-entity>
         
         <a-light type="point" color="#00ffff" intensity="2" distance="20"></a-light>
-
       `;
 
         scene.appendChild(menu);
@@ -591,17 +587,13 @@
 
       AFRAME.registerComponent("model-color", {
         schema: { type: "color", default: "#FFF" },
-
         init: function () {
           this.el.addEventListener("model-loaded", () => {
             const newColor = new THREE.Color(this.data);
-
             this.el.object3D.traverse((node) => {
               if (node.isMesh && node.material) {
                 node.material.color.copy(newColor);
-
                 node.material.emissive.copy(newColor);
-
                 node.material.emissiveIntensity = 2.0;
               }
             });
@@ -612,6 +604,10 @@
       window.addEventListener("keydown", (e) => {
         if (e.key === "Enter" && !gameStarted) {
           gameStarted = true;
+          
+         
+          playSound(sfxStart);
+
           showHint();
           const menu = document.querySelector("#start-menu");
 
@@ -628,35 +624,16 @@
             hideHint("#controls-p1-img")
             hideHint("#controls-p2-img")
           }, 15000);
-
-          const bit = document.querySelector("#bit-entity");
-
-          bit.setAttribute("visible", "true");
-
-          bit.setAttribute("animation__spawn", {
-            property: "scale",
-
-            from: "0 0 0",
-
-            to: "1 1 1",
-
-            dur: 800,
-
-            easing: "easeOutElastic",
-          });
         }
       });
 
       window.addEventListener("keydown", (e) => {
         if (e.key.toLowerCase() === "r") {
           scoreP1 = 0;
-
           scoreP2 = 0;
-
           document
             .querySelector("#text-p1")
             .setAttribute("text", "value", "P1: 0");
-
           document
             .querySelector("#text-p2")
             .setAttribute("text", "value", "P2: 0");
@@ -679,23 +656,22 @@
 
       function hideHint(params) {  
         const messageHint = document.querySelector(params);
-        messageHint.setAttribute('animation__show', 'property: scale; from: 0 0 0; to: 1 1 1; dur: 500; easing: easeOutBack');
-        messageHint.setAttribute('animation__hide', 'property: scale; to: 0 0 0; dur: 500; easing: easeInBack');
+        if(messageHint) {
+            messageHint.setAttribute('animation__hide', 'property: scale; to: 0 0 0; dur: 500; easing: easeInBack');
+        }
       }
 
       function playRandomSong() {
         if (playlist.length === 0) return; 
         
         let randomIndex;
-
         do {
           randomIndex = Math.floor(Math.random() * playlist.length);
         } while (randomIndex === lastPlayedIndex);
 
         lastPlayedIndex = randomIndex;
-
         audioPlayer.src = playlist[randomIndex];
-        audioPlayer.play();
+        audioPlayer.play().catch(e => console.log("Click to play music"));
       }
 
       audioPlayer.addEventListener('ended', playRandomSong);
